@@ -64,11 +64,15 @@ async function validateActionId(req, res, next) {
 async function validateAction(req, res, next) {
    if (Object.keys(req.body).length !== 0 && req.body.constructor === Object) {
       if (req.body.project_id && req.body.description && req.body.notes) {
-         const project = await Projects.get(req.body.project_id);
-         if (project) {
-            next();
+         if (req.body.description.length <= 128) {
+            const project = await Projects.get(req.body.project_id);
+            if (project) {
+               next();
+            } else {
+               res.status(400).json({ message: "project id does not exist" })
+            }
          } else {
-            res.status(400).json({ message: "project id does not exist" })
+            res.status(400).json({ message: "too long a description" })
          }
       } else {
          res.status(400).json({ message: "missing required notes and/or description and/or project_id fields" })
